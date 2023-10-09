@@ -145,11 +145,7 @@ export default {
       supabase,
     }
   },
-  mounted() {
-    if (this.supabase.auth.getSession) {
-      this.loadData()
-    }
-  },
+
   methods: {
     toggleHamburgerNav() {
       this.hamburgerNav = !this.hamburgerNav
@@ -181,10 +177,10 @@ export default {
       })
       this.isAuth = false
       this.hamburgerNav = false
+      this.$router.push('/auth/login')
     },
 
     async loadData() {
-      this.isAuth = true
       const {
         data: { user },
       } = await this.supabase.auth.getUser()
@@ -201,6 +197,12 @@ export default {
         this.username_gh = metadata.preferred_username
       }
     },
+  },
+  mounted() {
+    if (this.supabase.auth.getSession) {
+      this.isAuth = true
+      this.loadData()
+    }
   },
 }
 </script>
