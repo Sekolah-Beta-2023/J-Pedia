@@ -99,7 +99,7 @@
             />
             <div class="flex flex-col mx-4">
               <p class="text-left text-lg leading-normal">{{ full_name }}</p>
-              <p class="text-sm text-left">{{ email }}</p>
+              <p class="text-sm text-left">{{ email || username_gh }}</p>
             </div>
           </div>
         </button>
@@ -140,6 +140,7 @@ export default {
       avatar: '',
       email: '',
       full_name: '',
+      username_gh: '',
       isAuth: false,
       supabase,
     }
@@ -183,17 +184,21 @@ export default {
     },
 
     async loadData() {
+      this.isAuth = true
       const {
         data: { user },
       } = await this.supabase.auth.getUser()
-      try {
+      if (user.app_metadata.provider === 'google') {
         const metadata = user.user_metadata
-        this.isAuth = true
         this.avatar = metadata.avatar_url
         this.full_name = metadata.full_name
         this.email = metadata.email
-      } catch (error) {
-        console.error('Terjadi kesalahan dalam mengambil data', error)
+      } else if (user.app_metadata.provider === 'github') {
+        // Jika Login pake Github
+        const metadata = user.user_metadata
+        this.avatar = metadata.avatar_url
+        this.full_name = metadata.full_name
+        this.username_gh = metadata.preferred_username
       }
     },
   },
