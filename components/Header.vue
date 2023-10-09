@@ -199,7 +199,7 @@ export default {
     },
   },
   mounted() {
-    if (this.supabase.auth.getSession()) {
+    if (this.supabase.auth.getUser()) {
       this.isAuth = true
       this.loadData()
     }
