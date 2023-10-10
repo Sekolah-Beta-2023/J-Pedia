@@ -181,6 +181,7 @@ export default {
     },
 
     async loadData() {
+      this.isAuth = true
       const {
         data: { user },
       } = await this.supabase.auth.getUser()
@@ -199,8 +200,7 @@ export default {
     },
   },
   mounted() {
-    if (this.supabase.auth.getSession) {
-      this.isAuth = true
+    if (!this.supabase.auth.getSession()) {
       this.loadData()
     }
   },
