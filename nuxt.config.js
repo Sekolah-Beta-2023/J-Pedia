@@ -19,7 +19,7 @@ export default {
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
-  ssr: true,
+  ssr: false,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
@@ -46,6 +46,11 @@ export default {
     apiKey: process.env.SUPABASE_KEY,
   },
 
+  env: {
+    baseURL: process.env.SUPABASE_URL,
+    apiKey: process.env.SUPABASE_KEY,
+  },
+
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
@@ -61,4 +66,26 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
+  router: {
+    middleware: ['supabase-auth'],
+  },
+  router: {
+    routes: [
+      {
+        name: 'index',
+        path: '/',
+        component: 'pages/index.vue',
+      },
+      {
+        name: 'Auth',
+        path: '/auth',
+        component: 'pages/auth/login.vue',
+      },
+      {
+        name: 'Profile',
+        path: '/',
+        component: 'pages/profile.vue',
+      },
+    ],
+  },
 }

@@ -28,17 +28,20 @@
         class="iconify"
         data-icon="uil:shopping-cart"
         style="font-size: 24px"
-      ></span>
+      >
+      </span>
     </button>
 
     <!-- CHART MENU -->
     <div
       ref="chartMenu"
       :class="{ 'translate-x-0 mr-5': chartNav, 'translate-x-full': !chartNav }"
-      class="fixed inset-y-0 right-0 w-60 h-1/2 mt-20 bg-gray-800 rounded-md navbar-menu transition-transform duration-500 ease-in-out"
+      class="fixed inset-y-0 right-0 w-60 h-1/2 mt-20 bg-gray-800 rounded-md navbar-menu transition-transform duration-500 ease-in-out lg:z-50"
     >
-      <h1 class="my-2 mx-2">Hello World</h1>
-      <!-- TODO : Buat Card Product -->
+      <div class="flex flex-col">
+        <h1 class="my-2 mx-2">Hello World</h1>
+        <!-- TODO : Buat Card Product -->
+      </div>
     </div>
     <!-- CHART END -->
 
@@ -48,23 +51,28 @@
         'translate-x-0': hamburgerNav,
         '-translate-x-full': !hamburgerNav,
       }"
-      class="fixed inset-y-0 left-0 w-full min-h-screen bg-gray-800 navbar-menu transition-transform duration-500 ease-in-out"
+      class="fixed inset-y-0 left-0 w-full lg:w-1/4 h-auto bg-gray-800 navbar-menu transition-transform duration-500 ease-in-out"
     >
-      <button
-        class="p-1 mx-3 my-3 rounded-sm transition-opacity opacity-70 hover:opacity-100 absolute right-0 top-0 ring-offset-green-500 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        @click="toggleHamburgerNav"
-      >
-        <span
-          class="iconify"
-          data-icon="bi:x"
-          style="color: white; font-size: 20px"
-        ></span>
-      </button>
-      <h1 class="navbar-menu p-4 text-3xl">
-        J<span class="font-semibold text-lg text-green-400 tracking-widest"
-          >Pedia</span
-        >
-      </h1>
+      <div class="flex justify-between mx-4 my-3">
+        <h1 class="navbar-menu text-3xl">
+          J<span class="text-green-400">P</span
+          ><span class="font-semibold text-lg text-green-400 tracking-widest"
+            >edia</span
+          >
+        </h1>
+        <div>
+          <button
+            class="rounded-full transition-opacity opacity-70 hover:opacity-100 ring-offset-green-500 focus:outline-none focus:ring-1 focus:ring-offset-1"
+            @click="toggleHamburgerNav"
+          >
+            <span
+              class="iconify"
+              data-icon="bi:x"
+              style="color: white; font-size: 20px"
+            ></span>
+          </button>
+        </div>
+      </div>
       <!-- TODO : Buat Isi Menu -->
       <div class="flex flex-col mx-5">
         <nuxt-link
@@ -73,8 +81,8 @@
           class="mb-2 font-semibold"
           >Home</nuxt-link
         >
-        <nuxt-link @click.native="toggleHamburgerNav" to="/" class="mb-2"
-          >Product</nuxt-link
+        <nuxt-link @click.native="toggleHamburgerNav" to="/todo" class="mb-2"
+          >Todo</nuxt-link
         >
         <nuxt-link @click.native="toggleHamburgerNav" to="/" class="mb-2"
           >About</nuxt-link
@@ -84,28 +92,34 @@
         >
       </div>
       <div
-        class="flex flex-col bottom-0 mb-10 items-center justify-center absolute w-full"
+        class="flex flex-col bottom-0 items-center justify-center absolute w-full"
       >
         <hr class="border-t-2 justify-center items-center w-10/12 opacity-20" />
-        <button
+        <nuxt-link
+          to="/profile"
           v-if="isAuth"
-          class="p-5 bg-transparent hover:bg-gray-500 w-10/12 mx-5 mt-3 mb-3 justify-center items-center text-center font-medium rounded-md"
+          class="p-5 bg-transparent hover:bg-gray-500 w-10/12 mx-5 mt-3 justify-center items-center text-center font-medium rounded-md"
+          @click.native="toggleHamburgerNav()"
         >
           <div class="flex">
             <img
-              :src="avatar"
+              :src="user_data.avatar.url"
               class="rounded-full h-12 w-12"
-              :alt="full_name"
+              :alt="user_data.avatar.alt"
             />
             <div class="flex flex-col mx-4">
-              <p class="text-left text-lg leading-normal">{{ full_name }}</p>
-              <p class="text-sm text-left">{{ email || username_gh }}</p>
+              <p class="text-left text-lg leading-normal">
+                {{ user_data.full_name }}
+              </p>
+              <p class="text-sm text-left">
+                {{ user_data.email || user_data.username_gh }}
+              </p>
             </div>
           </div>
-        </button>
+        </nuxt-link>
         <button
           v-if="isAuth"
-          @click="logout"
+          @click="logout()"
           class="p-1 bg-red-400 w-10/12 mx-5 mt-3 mb-5 justify-center items-center text-center font-medium rounded-md"
         >
           Logout
@@ -126,23 +140,23 @@
 
 <script>
 import Iconify from '@iconify/iconify'
-import { createClient } from '@supabase/supabase-js'
+import supabase from '~/plugins/supabase.client'
+
 export default {
-  components: {
-    Iconify,
-  },
   data() {
-    const supabase = createClient(this.$config.baseURL, this.$config.apiKey)
     return {
       hamburgerNav: false,
       chartNav: false,
-      authStatus: false,
-      avatar: '',
-      email: '',
-      full_name: '',
-      username_gh: '',
+      user_data: {
+        avatar: {
+          url: '',
+          alt: '',
+        },
+        email: '',
+        full_name: '',
+        username_gh: '',
+      },
       isAuth: false,
-      supabase,
     }
   },
 
@@ -172,38 +186,56 @@ export default {
       }
     },
     async logout() {
-      const { data, error } = await this.supabase.auth.signOut({
+      this.hamburgerNav = false
+      this.isAuth = false
+      localStorage.removeItem('data_jpedia')
+      this.$router.push('/auth/login')
+      await supabase.auth.signOut({
         scope: 'local',
       })
-      this.isAuth = false
-      this.hamburgerNav = false
-      this.$router.push('/auth/login')
     },
 
-    async loadData() {
-      const { data } = await this.supabase.auth.getSession()
+    async saveLocal() {
+      const { data } = await supabase.auth.getSession()
       if (!data.session) {
         return
       }
-      this.isAuth = true
-      const {
-        data: { user },
-      } = await this.supabase.auth.getUser()
-      if (user.app_metadata.provider === 'google') {
-        const metadata = user.user_metadata
-        this.avatar = metadata.avatar_url
-        this.full_name = metadata.full_name
-        this.email = metadata.email
-      } else if (user.app_metadata.provider === 'github') {
-        // Jika Login pake Github
-        const metadata = user.user_metadata
-        this.avatar = metadata.avatar_url
-        this.full_name = metadata.full_name
-        this.username_gh = metadata.preferred_username
+      try {
+        this.isAuth = true
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) {
+          localStorage.setItem('data_jpedia', JSON.stringify(user))
+        }
+      } catch (error) {
+        console.error('terjadi kesalahan', error)
+      }
+    },
+
+    loadData() {
+      if (localStorage.getItem('data_jpedia') !== null) {
+        const dataLocal = localStorage.getItem('data_jpedia')
+        if (dataLocal) {
+          const data = JSON.parse(dataLocal)
+          if (data.app_metadata.provider === 'google') {
+            this.user_data.avatar.url = data.user_metadata.avatar_url
+            this.user_data.avatar.alt = data.user_metadata.avatar_url
+            this.user_data.full_name = data.user_metadata.full_name
+            this.user_data.email = data.user_metadata.email
+          } else if (data.app_metadata.provider === 'github') {
+            this.user_data.avatar.url = data.user_metadata.avatar_url
+            this.user_data.avatar.alt = data.user_metadata.avatar_url
+            this.user_data.full_name = data.user_metadata.full_name
+            this.user_data.email = data.user_metadata.email
+            this.user_data.username_gh = data.user_metadata.preferred_username
+          }
+        }
       }
     },
   },
   mounted() {
+    this.saveLocal()
     this.loadData()
   },
 }

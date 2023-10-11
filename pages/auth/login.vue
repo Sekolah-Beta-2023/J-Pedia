@@ -1,5 +1,7 @@
 <template>
-  <main class="container min-h-screen min-w-full text-white mt-10">
+  <main
+    class="container min-h-screen min-w-full lg:min-w-full text-white mt-10"
+  >
     <div class="items-center">
       <div
         class="flex flex-col gap-12 rounded-md border border-opacity-20 border-gray-100 p-8 m-4 mx-6"
@@ -40,21 +42,18 @@
 </template>
 
 <script>
-import { createClient } from '@supabase/supabase-js'
 import { Icon } from '@iconify/vue2'
 import Iconify from '@iconify/iconify'
+import supabase from '~/plugins/supabase.client'
 export default {
   components: { Icon, Iconify },
   data() {
-    const supabase = createClient(this.$config.baseURL, this.$config.apiKey)
-    return {
-      supabase,
-    }
+    return {}
   },
   computed: {},
   methods: {
     async signGoogle() {
-      const { data, error } = await this.supabase.auth.signInWithOAuth({
+      await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: '/',
@@ -63,7 +62,7 @@ export default {
     },
 
     async signGithub() {
-      const { data, error } = await this.supabase.auth.signInWithOAuth({
+      await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: '/',
