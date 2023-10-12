@@ -10,8 +10,7 @@
             v-model="tasks.title"
           />
           <div v-if="onInsertTask" class="absolute left-0 top-3">
-            <!-- Tambahkan elemen ikon loading di sini -->
-            <span
+                 <span
               class="iconify text-lg font-semibold text-gray-700 mx-2 animate-spin"
               data-icon="streamline:interface-arrows-synchronize-arrows-loading-load-sync-synchronize-arrow-reload"
             ></span>
