@@ -36,7 +36,7 @@
     <div
       ref="chartMenu"
       :class="{ 'translate-x-0 mr-5': chartNav, 'translate-x-full': !chartNav }"
-      class="fixed inset-y-0 right-0 w-60 h-1/2 mt-20 bg-gray-800 rounded-md navbar-menu transition-transform duration-500 ease-in-out lg:z-50"
+      class="fixed inset-y-0 right-0 w-60 h-1/2 mt-20 bg-gray-800 rounded-md navbar-menu transition-transform duration-500 ease-in-out z-50"
     >
       <div class="flex flex-col">
         <h1 class="my-2 mx-2">Hello World</h1>
