@@ -1,4 +1,5 @@
-# J-Pedia
+# J-Pedia  
+## Mobile View Only ( Desktop View Under Development )
 
 ## Build Setup
 
