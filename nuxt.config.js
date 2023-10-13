@@ -78,12 +78,12 @@ export default {
       },
       {
         name: 'Auth',
-        path: '/auth',
+        path: '/auth/login',
         component: 'pages/auth/login.vue',
       },
       {
         name: 'Profile',
-        path: '/',
+        path: '/profile',
         component: 'pages/profile.vue',
       },
     ],

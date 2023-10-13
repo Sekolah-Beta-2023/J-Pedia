@@ -51,7 +51,7 @@
         'translate-x-0': hamburgerNav,
         '-translate-x-full': !hamburgerNav,
       }"
-      class="fixed inset-y-0 left-0 w-full lg:w-1/4 h-auto bg-gray-800 navbar-menu transition-transform duration-500 ease-in-out"
+      class="fixed inset-y-0 left-0 w-full lg:w-1/4 h-auto bg-gray-800 navbar-menu transition-transform duration-500 ease-in-out z-50"
     >
       <div class="flex justify-between mx-4 my-3">
         <h1 class="navbar-menu text-3xl">
@@ -103,16 +103,16 @@
         >
           <div class="flex">
             <img
-              :src="user_data.avatar.url"
+              :src="userData?.avatar_url"
               class="rounded-full h-12 w-12"
-              :alt="user_data.avatar.alt"
+              :alt="userData?.full_name"
             />
             <div class="flex flex-col mx-4">
               <p class="text-left text-lg leading-normal">
-                {{ user_data.full_name }}
+                {{ userData?.full_name }}
               </p>
               <p class="text-sm text-left">
-                {{ user_data.email || user_data.username_gh }}
+                {{ userData?.preferred_username || userData?.email }}
               </p>
             </div>
           </div>
@@ -139,6 +139,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 import Iconify from '@iconify/iconify'
 import supabase from '~/plugins/supabase.client'
 
@@ -147,20 +148,14 @@ export default {
     return {
       hamburgerNav: false,
       chartNav: false,
-      user_data: {
-        avatar: {
-          url: '',
-          alt: '',
-        },
-        email: '',
-        full_name: '',
-        username_gh: '',
-      },
-      isAuth: false,
     }
+  },
+  computed: {
+    ...mapState(['userData', 'isAuth']),
   },
 
   methods: {
+    ...mapActions(['fetchUser']),
     toggleHamburgerNav() {
       this.hamburgerNav = !this.hamburgerNav
       if (this.chartNav) {
@@ -188,55 +183,18 @@ export default {
     async logout() {
       this.hamburgerNav = false
       this.isAuth = false
-      localStorage.removeItem('data_jpedia')
       this.$router.push('/auth/login')
       await supabase.auth.signOut({
         scope: 'local',
       })
     },
 
-    async saveLocal() {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        return
-      }
-      try {
-        this.isAuth = true
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        if (user) {
-          localStorage.setItem('data_jpedia', JSON.stringify(user))
-        }
-      } catch (error) {
-        console.error('terjadi kesalahan', error)
-      }
-    },
-
-    loadData() {
-      if (localStorage.getItem('data_jpedia') !== null) {
-        const dataLocal = localStorage.getItem('data_jpedia')
-        if (dataLocal) {
-          const data = JSON.parse(dataLocal)
-          if (data.app_metadata.provider === 'google') {
-            this.user_data.avatar.url = data.user_metadata.avatar_url
-            this.user_data.avatar.alt = data.user_metadata.avatar_url
-            this.user_data.full_name = data.user_metadata.full_name
-            this.user_data.email = data.user_metadata.email
-          } else if (data.app_metadata.provider === 'github') {
-            this.user_data.avatar.url = data.user_metadata.avatar_url
-            this.user_data.avatar.alt = data.user_metadata.avatar_url
-            this.user_data.full_name = data.user_metadata.full_name
-            this.user_data.email = data.user_metadata.email
-            this.user_data.username_gh = data.user_metadata.preferred_username
-          }
-        }
-      }
+    fetchUser() {
+      this.$store.dispatch('fetchUser')
     },
   },
   mounted() {
-    this.saveLocal()
-    this.loadData()
+    this.fetchUser()
   },
 }
 </script>
