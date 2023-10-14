@@ -101,19 +101,20 @@
           class="p-5 bg-transparent hover:bg-gray-500 w-10/12 mx-5 mt-3 justify-center items-center text-center font-medium rounded-md"
           @click.native="toggleHamburgerNav()"
         >
-          <div class="flex">
+          <div class="flex gap-2">
             <img
               :src="userData?.avatar_url"
               class="rounded-full h-12 w-12"
               :alt="userData?.full_name"
             />
-            <div class="flex flex-col mx-4">
-              <p class="text-left text-lg leading-normal">
+            <div class="flex flex-col break-all">
+              <h4 class="text-left font-semibold text-md leading-normal">
                 {{ userData?.full_name }}
-              </p>
-              <p class="text-sm text-left">
+              </h4>
+              <h6 class="text-left text-sm">
                 {{ userData?.preferred_username || userData?.email }}
-              </p>
+                <!-- rezaasriano193333333@gmail.casdsom -->
+              </h6>
             </div>
           </div>
         </nuxt-link>

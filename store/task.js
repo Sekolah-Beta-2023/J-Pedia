@@ -9,14 +9,14 @@ export const mutations = {
   SET_TASKS(state, tasks) {
     state.tasks = tasks
   },
+  SET_LOADING(state, value) {
+    state.isLoading = value
+  },
   ADD_TASK(state, newTask) {
     state.tasks.push(newTask)
   },
   DELETE_TASK(state, task) {
     state.tasks = state.tasks.filter((t) => t.id !== task.id)
-  },
-  SET_LOADING(state, value) {
-    state.isLoading = value
   },
 }
 
@@ -41,7 +41,7 @@ export const actions = {
       console.error(error)
     }
   },
-  async insertTask({ commit, dispatch, state }, taskData) {
+  async insertTask({ commit }, taskData) {
     commit('SET_LOADING', true)
     const {
       data: { user },
@@ -52,7 +52,6 @@ export const actions = {
         isDone: taskData?.isDone,
         email: user?.email,
       })
-      dispatch('fetchTasks')
       if (error) throw error
     } catch (error) {
       console.error(error)
@@ -66,7 +65,6 @@ export const actions = {
         .from('tasks')
         .update(updatedTask)
         .eq('id', updatedTask.id)
-      dispatch('fetchTasks')
       if (error) throw error
     } catch (error) {
       console.error(error)
@@ -125,9 +123,8 @@ export const actions = {
           table: 'tasks',
         },
         (event) => {
-          const { new: updateTask } = event
-          commit('SET_TASKS', [...state.tasks, updateTask])
-          commit('SET_LOADING', false)
+          const { new: insertTask } = event
+          commit('SET_TASKS', [...state.tasks, insertTask])
         }
       )
       .subscribe()
@@ -142,7 +139,8 @@ export const actions = {
           table: 'tasks',
         },
         (event) => {
-          commit('SET_LOADING', false)
+          const { new: updateTask } = event
+          commit('SET_TASKS', [...state.tasks, updateTask])
         }
       )
       .subscribe()
