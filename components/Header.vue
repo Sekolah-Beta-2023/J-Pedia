@@ -103,16 +103,21 @@
         >
           <div class="flex gap-2">
             <img
-              :src="userData?.avatar_url"
+              :src="
+                userData[1]?.publicUrl || userData[0]?.user_metadata?.avatar_url
+              "
               class="rounded-full h-12 w-12"
-              :alt="userData?.full_name"
+              :alt="userData[0]?.user_metadata?.full_name"
             />
             <div class="flex flex-col break-all">
               <h4 class="text-left font-semibold text-md leading-normal">
-                {{ userData?.full_name }}
+                {{ userData[0]?.user_metadata?.full_name }}
               </h4>
               <h6 class="text-left text-sm">
-                {{ userData?.preferred_username || userData?.email }}
+                {{
+                  userData[0]?.user_metadata?.preferred_username ||
+                  userData[0]?.user_metadata?.email
+                }}
                 <!-- rezaasriano193333333@gmail.casdsom -->
               </h6>
             </div>
@@ -183,8 +188,6 @@ export default {
     },
     async logout() {
       this.hamburgerNav = false
-      this.isAuth = false
-      this.$router.push('/auth/login')
       await supabase.auth.signOut({
         scope: 'local',
       })
@@ -194,8 +197,21 @@ export default {
       this.$store.dispatch('fetchUser')
     },
   },
-  mounted() {
-    this.fetchUser()
+  fetch() {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session !== null) {
+        this.fetchUser()
+      }
+    })
+  },
+
+  updated() {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        this.$store.commit('SET_AUTH', false)
+        this.$router.push('/auth/login')
+      }
+    })
   },
 }
 </script>
