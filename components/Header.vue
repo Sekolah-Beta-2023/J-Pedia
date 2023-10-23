@@ -104,7 +104,9 @@
           <div class="flex gap-2">
             <img
               :src="
-                userData[1]?.publicUrl || userData[0]?.user_metadata?.avatar_url
+                userData[1]?.publicUrl ||
+                userData[0]?.user_metadata?.avatar_url ||
+                avatar_default
               "
               class="rounded-full h-12 w-12"
               :alt="userData[0]?.user_metadata?.full_name"
@@ -157,7 +159,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['userData', 'isAuth']),
+    ...mapState(['userData', 'isAuth', 'avatar_default']),
   },
 
   methods: {
@@ -178,14 +180,6 @@ export default {
       this.chartNav = !this.chartNav
     },
 
-    handleClickOutsideChartMenu(event) {
-      if (this.chartNav) {
-        const chartMenu = this.$refs.chartMenu
-        if (!chartMenu.contains(event.target)) {
-          this.chartNav = false
-        }
-      }
-    },
     async logout() {
       this.hamburgerNav = false
       await supabase.auth.signOut({
@@ -197,6 +191,7 @@ export default {
       this.$store.dispatch('fetchUser')
     },
   },
+
   fetch() {
     supabase.auth.onAuthStateChange((event, session) => {
       if (session !== null) {
