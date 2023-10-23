@@ -104,7 +104,6 @@ export default {
     },
 
     insertTask() {
-      this.isLoading = true
       this.$store.dispatch('task/insertTask', {
         title: this.taskData.title,
         isDone: false,
